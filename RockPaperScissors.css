@@ -1,0 +1,133 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #b8c6db, #f5f7fa);
+  color: #333;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  margin-bottom: 1rem;
+}
+
+#mode-toggle {
+  margin-bottom: 1rem;
+}
+
+#mode-toggle button {
+  border: none;
+  padding: 8px 16px;
+  margin: 0 5px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#mode-toggle button.active {
+  background: #a8edea;
+}
+
+#buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.choice {
+  font-size: 2rem;
+  padding: 15px;
+  background: white;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.choice:hover {
+  background: #e0f7fa;
+  transform: scale(1.1);
+}
+
+#turn-indicator {
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+#scoreboard {
+  margin-top: 15px;
+  font-size: 1.2rem;
+}
+
+#reset {
+  margin-top: 20px;
+  border: none;
+  background: #ffcdd2;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#game-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+#game {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 25px 40px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+#bot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: float 3s ease-in-out infinite;
+}
+
+#bot-avatar {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+#bot-bubble {
+  background: white;
+  border-radius: 15px;
+  padding: 10px 15px;
+  position: relative;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  max-width: 160px;
+  text-align: center;
+  font-style: italic;
+  transition: all 0.4s ease;
+}
+
+#bot-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: white transparent transparent transparent;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
