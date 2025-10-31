@@ -1,141 +1,196 @@
-const choices = document.querySelectorAll('.choice');
-const result = document.getElementById('result');
-const taunt = document.getElementById('taunt');
-const player1Score = document.getElementById('player1-score');
-const player2Score = document.getElementById('player2-score');
-const resetBtn = document.getElementById('reset');
-const turnIndicator = document.getElementById('turn-indicator');
-const computerMoveContainer = document.getElementById("computer-move"); // NEW: computer move container
+const buttons = document.querySelectorAll(".choice");
+const resultDisplay = document.getElementById("result");
+const turnIndicator = document.getElementById("turn-indicator");
+const player1ScoreEl = document.getElementById("player1-score");
+const player2ScoreEl = document.getElementById("player2-score");
+const resetBtn = document.getElementById("reset");
+const tauntEl = document.getElementById("taunt");
+const computerMoveEl = document.getElementById("computer-move");
 
-let playerScore = 0;
-let computerScore = 0;
+let player1Score = 0;
+let player2Score = 0;
+let singlePlayer = true;
 
-const taunts = [
-	"Is that all you've got?",
-	"You call that a move?",
-	"Predictable…",
-	"Nice try, human!",
-	"Processing your defeat..."
-];
+// === MODE TOGGLE ===
+document.getElementById("single-btn").addEventListener("click", () => {
+	singlePlayer = true;
+	document.getElementById("single-btn").classList.add("active");
+	document.getElementById("multi-btn").classList.remove("active");
+	document.getElementById("player2-label").textContent = "Computer: ";
+});
 
-choices.forEach(button => {
-	button.addEventListener('click', () => {
-		const playerChoice = button.dataset.choice;
-		startRound(playerChoice);
+document.getElementById("multi-btn").addEventListener("click", () => {
+	singlePlayer = false;
+	document.getElementById("multi-btn").classList.add("active");
+	document.getElementById("single-btn").classList.remove("active");
+	document.getElementById("player2-label").textContent = "Player 2: ";
+});
+
+// === GAME LOGIC ===
+let player1Choice = null;
+let player2Choice = null;
+let waitingForP2 = false;
+
+buttons.forEach(button => {
+	button.addEventListener("click", () => {
+		const choice = button.dataset.choice;
+
+		if (singlePlayer) {
+			playSinglePlayer(choice);
+		} else {
+			playTwoPlayer(choice);
+		}
 	});
 });
 
-function startRound(playerChoice) {
-	choices.forEach(btn => btn.disabled = true);
+function playSinglePlayer(playerChoice) {
+	const choices = ["rock", "paper", "scissors"];
+	const computerChoice = choices[Math.floor(Math.random() * 3)];
 
-	let count = 3;
-
-	// ===== NEW: Big, bold countdown in center =====
-	turnIndicator.textContent = count;
-	turnIndicator.style.fontSize = "3rem"; // NEW
-	turnIndicator.style.fontWeight = "bold"; // NEW
-	turnIndicator.style.color = "#333"; // NEW
-
-	// ===== NEW: Highlight player choice in center =====
-	choices.forEach(btn => {
-		if (btn.dataset.choice === playerChoice) {
-			btn.style.transition = "all 0.5s ease"; // NEW
-			btn.style.transform = "scale(2)"; // NEW: grow bigger
-			btn.style.fontWeight = "bold"; // NEW: bold
-			btn.style.zIndex = "10"; // NEW: bring to front
-		} else {
-			btn.style.visibility = "hidden"; // NEW: hide other choices
-		}
-	});
-
-	const countdown = setInterval(() => {
-		count--;
-		if (count > 0) {
-			turnIndicator.textContent = count;
-		} else {
-			clearInterval(countdown);
-			revealRound(playerChoice);
-		}
-	}, 500);
-}
-
-function revealRound(playerChoice) {
-	const computerChoice = getComputerChoice();
 	const winner = getWinner(playerChoice, computerChoice);
 
-	if (winner === 'player') playerScore++;
-	else if (winner === 'computer') computerScore++;
+	triggerShowdown(playerChoice, computerChoice, winner);
 
-	player1Score.textContent = playerScore;
-	player2Score.textContent = computerScore;
-
-	// ===== NEW: Show computer move under bot =====
-	const computerEmoji = computerChoice === "rock" ? "🪨" :
-							computerChoice === "paper" ? "📄" : "✂️";
-	computerMoveContainer.textContent = computerEmoji; // NEW
-	computerMoveContainer.style.opacity = 1; // NEW
-	computerMoveContainer.style.transform = "scale(1.2)"; // NEW
-	setTimeout(() => computerMoveContainer.style.transform = "scale(1)", 200); // NEW
-
-	// ===== NEW: Show result in turnIndicator =====
-	turnIndicator.textContent = getResultText(winner, playerChoice, computerChoice); // NEW
-	turnIndicator.style.fontSize = "2rem"; // NEW
-	turnIndicator.style.fontWeight = "bold"; // NEW
-	turnIndicator.style.color = winner === "player" ? "green" : winner === "computer" ? "red" : "orange"; // NEW
-
-	taunt.textContent = taunts[Math.floor(Math.random() * taunts.length)];
-
-	// Reset buttons and countdown after delay
-	setTimeout(() => {
-		choices.forEach(btn => {
-			btn.style.transform = "scale(1)";
-			btn.style.fontWeight = "normal";
-			btn.style.visibility = "visible";
-			btn.style.zIndex = "1";
-			btn.disabled = false;
-		});
-		turnIndicator.textContent = "Make your move!";
-		turnIndicator.style.fontSize = "1rem"; // NEW: reset size
-		turnIndicator.style.color = "#333"; // NEW: reset color
-	}, 1500);
+	updateScore(winner);
+	updateResult(winner, playerChoice, computerChoice);
+	showTaunt(winner);
 }
 
-function getComputerChoice() {
-	const options = ['rock', 'paper', 'scissors'];
-	return options[Math.floor(Math.random() * options.length)];
+function playTwoPlayer(choice) {
+	if (!waitingForP2) {
+		player1Choice = choice;
+		waitingForP2 = true;
+		turnIndicator.textContent = "Player 2's turn!";
+	} else {
+		player2Choice = choice;
+		const winner = getWinner(player1Choice, player2Choice);
+
+		triggerShowdown(player1Choice, player2Choice, winner);
+
+		updateScore(winner);
+		updateResult(winner, player1Choice, player2Choice);
+		waitingForP2 = false;
+		turnIndicator.textContent = "Player 1's turn!";
+	}
 }
 
-function getWinner(player, computer) {
-	if (player === computer) return 'draw';
+function getWinner(p1, p2) {
+	if (p1 === p2) return "tie";
 	if (
-		(player === 'rock' && computer === 'scissors') ||
-		(player === 'paper' && computer === 'rock') ||
-		(player === 'scissors' && computer === 'paper')
-	) return 'player';
-	return 'computer';
+		(p1 === "rock" && p2 === "scissors") ||
+		(p1 === "paper" && p2 === "rock") ||
+		(p1 === "scissors" && p2 === "paper")
+	) {
+		return "player";
+	} else {
+		return "computer";
+	}
 }
 
-function getResultText(winner, player, computer) {
-	if (winner === 'draw') return `Both chose ${player}. It's a draw!`;
-	if (winner === 'player') return `You win! ${player} beats ${computer}!`;
-	return `You lose! ${computer} beats ${player}!`;
+function updateScore(winner) {
+	if (winner === "player") player1Score++;
+	else if (winner === "computer") player2Score++;
+
+	player1ScoreEl.textContent = player1Score;
+	player2ScoreEl.textContent = player2Score;
 }
 
-resetBtn.addEventListener('click', () => {
-	playerScore = 0;
-	computerScore = 0;
-	player1Score.textContent = 0;
-	player2Score.textContent = 0;
-	result.textContent = '';
-	taunt.textContent = 'Ready to lose, human?';
+function updateResult(winner, p1, p2) {
+	let text = "";
+
+	if (winner === "tie") text = `Both chose ${p1}. It's a tie!`;
+	else if (winner === "player") text = `${p1} beats ${p2}. You win!`;
+	else text = `${p2} beats ${p1}. You lose!`;
+
+	resultDisplay.textContent = text;
+	computerMoveEl.textContent = "🤖 " + p2;
+}
+
+function showTaunt(winner) {
+	const taunts = {
+		win: ["Nooo!", "Impossible!", "You cheated!", "Lucky shot!"],
+		lose: ["Haha!", "Too easy!", "Try harder!", "Pathetic!"],
+		tie: ["Huh, not bad.", "Even match!", "A tie? How boring."]
+	};
+
+	if (winner === "player") {
+		tauntEl.textContent = taunts.win[Math.floor(Math.random() * taunts.win.length)];
+	} else if (winner === "computer") {
+		tauntEl.textContent = taunts.lose[Math.floor(Math.random() * taunts.lose.length)];
+	} else {
+		tauntEl.textContent = taunts.tie[Math.floor(Math.random() * taunts.tie.length)];
+	}
+}
+
+// === RESET BUTTON ===
+resetBtn.addEventListener("click", () => {
+	player1Score = 0;
+	player2Score = 0;
+	player1ScoreEl.textContent = "0";
+	player2ScoreEl.textContent = "0";
+	resultDisplay.textContent = "";
 	turnIndicator.textContent = "Make your move!";
-	computerMoveContainer.textContent = ''; // NEW
-	computerMoveContainer.style.opacity = 0; // NEW
-	computerMoveContainer.style.transform = "scale(0.5)"; // NEW
-	choices.forEach(btn => {
-		btn.style.transform = "scale(1)";
-		btn.style.fontWeight = "normal";
-		btn.style.visibility = "visible";
-		btn.disabled = false;
-	});
+	tauntEl.textContent = "Ready to lose, human?";
+	computerMoveEl.textContent = "";
 });
+
+/* =====================
+   SHOWDOWN ANIMATION
+===================== */
+function triggerShowdown(playerChoice, computerChoice, winner) {
+	const overlay = document.getElementById("showdown-overlay");
+	const playerEmoji = document.getElementById("player-emoji");
+	const computerEmoji = document.getElementById("computer-emoji");
+	const caption = document.getElementById("countdown-text");
+
+	const emojiMap = {
+		rock: "🪨",
+		paper: "📄",
+		scissors: "✂️"
+	};
+
+	playerEmoji.textContent = emojiMap[playerChoice];
+	computerEmoji.textContent = emojiMap[computerChoice];
+	caption.textContent = "3";
+	overlay.classList.add("active");
+
+	// Countdown
+	let count = 2;
+	const timer = setInterval(() => {
+		caption.textContent = count;
+		count--;
+		if (count < 0) {
+			clearInterval(timer);
+			caption.textContent = "SHOOT!";
+			startAnimation();
+		}
+	}, 700);
+
+	function startAnimation() {
+		playerEmoji.style.left = "30px";
+		computerEmoji.style.right = "30px";
+
+		playerEmoji.style.animation = "collide 1.5s ease-in-out 3 alternate";
+		computerEmoji.style.animation = "collide-right 1.5s ease-in-out 3 alternate";
+
+		setTimeout(() => {
+			if (winner === "player") {
+				computerEmoji.style.animation = "lose-slide 1s forwards";
+				playerEmoji.style.animation = "glow 1.5s ease-in-out infinite alternate";
+			} else if (winner === "computer") {
+				playerEmoji.style.animation = "lose-slide 1s forwards";
+				computerEmoji.style.animation = "glow 1.5s ease-in-out infinite alternate";
+			} else {
+				playerEmoji.style.opacity = "0.5";
+				computerEmoji.style.opacity = "0.5";
+				caption.textContent = "It's a tie!";
+			}
+			setTimeout(() => {
+				overlay.classList.remove("active");
+				playerEmoji.removeAttribute("style");
+				computerEmoji.removeAttribute("style");
+				caption.textContent = "";
+			}, 2000);
+		}, 2400);
+	}
+}

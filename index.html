@@ -1,1 +1,56 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>Rock • Paper • Scissors</title> <link rel="stylesheet" href="RockPaperScissors.css" /> </head> <body> <h1>Rock • Paper • Scissors</h1> <div id="mode-toggle"> <button id="single-btn" class="active">Single Player</button> <button id="multi-btn">Two Player</button> </div> <div id="game-wrapper"> <div id="game"> <div id="buttons"> <button class="choice" data-choice="rock">🪨</button> <button class="choice" data-choice="paper">📄</button> <button class="choice" data-choice="scissors">✂️</button> </div> <p id="turn-indicator">Make your move!</p> <p id="result"></p> <div id="scoreboard"> <p id="player1-label">You: <span id="player1-score">0</span></p> <p id="player2-label">Computer: <span id="player2-score">0</span></p> </div> <button id="reset">Reset</button> </div> <div id="bot"> <div id="bot-avatar">🤖</div> <div id="bot-bubble"> <p id="taunt">Ready to lose, human?</p> </div> <div id="computer-move"></div> </div> </div> <script src="RockPaperScissors.js"></script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Rock • Paper • Scissors</title>
+	<link rel="stylesheet" href="RockPaperScissors.css" />
+</head>
+<body>
+	<h1>Rock • Paper • Scissors</h1>
+
+	<div id="mode-toggle">
+		<button id="single-btn" class="active">Single Player</button>
+		<button id="multi-btn">Two Player</button>
+	</div>
+
+	<div id="game-wrapper">
+		<div id="game">
+			<div id="buttons">
+				<button class="choice" data-choice="rock">🪨</button>
+				<button class="choice" data-choice="paper">📄</button>
+				<button class="choice" data-choice="scissors">✂️</button>
+			</div>
+
+			<p id="turn-indicator">Make your move!</p>
+			<p id="result"></p>
+
+			<div id="scoreboard">
+				<p id="player1-label">You: <span id="player1-score">0</span></p>
+				<p id="player2-label">Computer: <span id="player2-score">0</span></p>
+			</div>
+
+			<button id="reset">Reset</button>
+		</div>
+
+		<div id="bot">
+			<div id="bot-avatar">🤖</div>
+			<div id="bot-bubble">
+				<p id="taunt">Ready to lose, human?</p>
+			</div>
+			<div id="computer-move"></div>
+		</div>
+	</div>
+
+	<!-- === SHOWDOWN OVERLAY === -->
+	<div id="showdown-overlay">
+		<div id="showdown-stage">
+			<div id="player-emoji" class="showdown-emoji left"></div>
+			<div id="computer-emoji" class="showdown-emoji right"></div>
+			<div class="showdown-caption" id="countdown-text"></div>
+		</div>
+	</div>
+
+	<script src="RockPaperScissors.js"></script>
+</body>
+</html>
